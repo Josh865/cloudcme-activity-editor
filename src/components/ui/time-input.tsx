@@ -1,8 +1,5 @@
 import React from "react";
-import type {
-  TimeFieldProps as AriaTimeFieldProps,
-  TimeValue,
-} from "react-aria-components";
+import { parseTime } from "@internationalized/date";
 import {
   TimeField as AriaTimeField,
   DateInput,
@@ -11,18 +8,22 @@ import {
 
 import { cn } from "~/lib/utils";
 
-interface TimeFieldProps extends AriaTimeFieldProps<TimeValue> {
-  label?: string;
-  description?: string;
-  errorMessage?: string;
-}
+type TimeFieldProps = {
+  value: string;
+  onChange: (value: string) => void;
+};
 
 const TimeField = React.forwardRef<
   React.ElementRef<typeof AriaTimeField>,
   TimeFieldProps
->(({ ...props }, ref) => {
+>(({ value, onChange, ...props }, ref) => {
   return (
-    <AriaTimeField ref={ref} {...props} aria-label="time">
+    <AriaTimeField
+      ref={ref}
+      value={parseTime(value)}
+      onChange={(value) => onChange(value.toString())}
+      {...props}
+    >
       <DateInput
         className={cn(
           "flex h-10 w-full items-center rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",

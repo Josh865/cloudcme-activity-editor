@@ -1,4 +1,3 @@
-import { TimeValue } from "react-aria-components";
 import { z } from "zod";
 
 export const BasicInformationResponseSchema = z.object({
@@ -14,28 +13,14 @@ export const BasicInformationResponseSchema = z.object({
   start: z.date({
     required_error: "A start date is required.",
   }),
-  startTime: z.any().superRefine((arg, ctx): arg is TimeValue => {
-    if (!arg) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Enter a valid time",
-      });
-    }
-    // The return value is not used, but we need to return something to satisfy the typing
-    return z.NEVER;
+  startTime: z.string({
+    required_error: "A start time is required.",
   }),
   end: z.date({
     required_error: "An end date is required.",
   }),
-  endTime: z.any().superRefine((arg, ctx): arg is TimeValue => {
-    if (!arg) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Enter a valid time",
-      });
-    }
-    // The return value is not used, but we need to return something to satisfy the typing
-    return z.NEVER;
+  endTime: z.string({
+    required_error: "An end time is required.",
   }),
   facility: z
     .string({
