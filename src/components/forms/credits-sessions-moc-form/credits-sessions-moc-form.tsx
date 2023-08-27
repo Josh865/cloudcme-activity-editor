@@ -1,13 +1,22 @@
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { CalendarIcon, PlusIcon, XIcon } from "lucide-react";
+import { AlertTriangleIcon, CalendarIcon, PlusIcon, XIcon } from "lucide-react";
 import { nanoid } from "nanoid";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useFormContext } from "react-hook-form";
 
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -118,7 +127,10 @@ export function CreditsSessionsMocForm() {
 
   function deleteSession() {
     const nextSessions = sessions.filter((s) => s.id !== selectedSessionId);
-    const nextSelectedSessionId = nextSessions[0]?.id;
+    const nextSelectedSessionId =
+      nextSessions.length > 1
+        ? nextSessions[nextSessions.length - 1]?.id
+        : nextSessions[0]?.id;
 
     setSessions(nextSessions);
     setSelectedSessionId(nextSelectedSessionId);
@@ -368,19 +380,74 @@ export function CreditsSessionsMocForm() {
             <div className="flex max-w-md items-center justify-between">
               <Button type="submit">Save Changes</Button>
               {sessions.length > 1 && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  className="border border-destructive bg-background text-destructive hover:text-destructive-foreground"
-                  onClick={deleteSession}
-                >
-                  Delete Session
-                </Button>
+                <ConfirmDeleteModal onClick={deleteSession} />
               )}
             </div>
           </form>
         </Form>
       </div>
     </div>
+  );
+}
+
+function ConfirmDeleteModal({ onClick }) {
+  const {
+    getValues,
+    formState: { isDirty },
+  } = useFormContext();
+  const [open, setOpen] = useState(false);
+
+  if (!isDirty && getValues("name") === "New Session") {
+    return (
+      <Button
+        type="button"
+        variant="destructive"
+        className="border border-destructive bg-background text-destructive hover:text-destructive-foreground"
+        onClick={onClick}
+      >
+        Delete Session
+      </Button>
+    );
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          type="button"
+          variant="destructive"
+          className="border border-destructive bg-background text-destructive hover:text-destructive-foreground"
+        >
+          Delete Session
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-x-2">
+            <div className="mx-auto flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0">
+              <AlertTriangleIcon className="h-6 w-6 text-red-600" />
+            </div>
+            Delete Session
+          </DialogTitle>
+          <DialogDescription className="py-2">
+            Are you sure you want to delete this session? This action cannot be
+            undone and the session will be permanently deleted from the
+            activity.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="flex items-center justify-end gap-x-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button type="button" variant="destructive" onClick={onClick}>
+            Delete Session
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
