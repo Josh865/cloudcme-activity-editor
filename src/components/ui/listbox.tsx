@@ -1,77 +1,40 @@
 import * as React from "react";
-import {
-  autoUpdate,
-  flip,
-  offset,
-  size,
-  useFloating,
-  type UseFloatingReturn,
-} from "@floating-ui/react-dom";
 import { Listbox as ListboxPrimitive } from "@headlessui/react";
+import * as Popover from "@radix-ui/react-popover";
 import { CheckIcon, ChevronDownIcon } from "lucide-react";
 
-import { cn, mergeRefs } from "~/lib/utils";
-
-type FloatingContextValue = Pick<UseFloatingReturn, "refs" | "floatingStyles">;
-
-const FloatingContext = React.createContext<FloatingContextValue>(
-  {} as FloatingContextValue,
-);
-
-const useFloatingContext = () => {
-  const floatingContext = React.useContext(FloatingContext);
-
-  if (!floatingContext) {
-    throw new Error(
-      "useFloatingContext should be used within <FloatingProvider>",
-    );
-  }
-
-  return floatingContext;
-};
-
-const FloatingProvider = ({
-  value,
-  children,
-}: {
-  value: FloatingContextValue;
-  children: React.ReactNode;
-}) => (
-  <FloatingContext.Provider value={value}>{children}</FloatingContext.Provider>
-);
+import { cn } from "~/lib/utils";
 
 const ListboxLabel = ListboxPrimitive.Label;
+
+// Not ideal, but this type isn't exported from the Headless UI library, so it's
+// reproduced here from the definition in the source.
+type ListboxRenderProps = {
+  open: boolean;
+  disabled: boolean;
+  value: unknown;
+};
 
 const Listbox = React.forwardRef<
   React.ElementRef<typeof ListboxPrimitive>,
   React.ComponentPropsWithoutRef<typeof ListboxPrimitive>
->(({ as = "div", className, ...props }, ref) => {
-  const { refs, floatingStyles } = useFloating({
-    whileElementsMounted: autoUpdate,
-    middleware: [
-      offset(4),
-      flip(),
-      size({
-        apply({ availableHeight, elements, rects }) {
-          Object.assign(elements.floating.style ?? {}, {
-            minWidth: `${rects.reference.width}px`,
-            maxHeight: `${availableHeight}px`,
-          });
-        },
-        padding: 16,
-      }),
-    ],
-  });
+>(({ as = "div", className, children, ...props }, ref) => {
+  const resolvedChildren = (listboxRenderProps: ListboxRenderProps) =>
+    typeof children === "function" ? children(listboxRenderProps) : children;
 
   return (
-    <FloatingProvider value={{ refs, floatingStyles }}>
-      <ListboxPrimitive
-        ref={ref}
-        as={as}
-        className={cn("w-full", className)}
-        {...props}
-      />
-    </FloatingProvider>
+    <ListboxPrimitive
+      ref={ref}
+      as={as}
+      className={cn("w-full", className)}
+      {...props}
+    >
+      {(listboxRenderProps) => (
+        <Popover.Root open={listboxRenderProps.open}>
+          {resolvedChildren(listboxRenderProps)}
+        </Popover.Root>
+      )}
+    </ListboxPrimitive>
   );
 });
 Listbox.displayName = ListboxPrimitive.displayName;
@@ -80,22 +43,22 @@ const ListboxButton = React.forwardRef<
   React.ElementRef<typeof ListboxPrimitive.Button>,
   React.ComponentPropsWithoutRef<typeof ListboxPrimitive.Button>
 >(({ className, children, ...props }, ref) => {
-  const { refs: floatingRefs } = useFloatingContext();
-
   return (
-    <ListboxPrimitive.Button
-      ref={mergeRefs(ref, floatingRefs.setReference)}
-      className={cn(
-        "flex h-10 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-left text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-        className,
-      )}
-      {...props}
-    >
-      <>
-        {children}
-        <ChevronDownIcon className="ml-auto h-4 w-4 opacity-50" />
-      </>
-    </ListboxPrimitive.Button>
+    <Popover.Trigger asChild>
+      <ListboxPrimitive.Button
+        ref={ref}
+        className={cn(
+          "flex h-10 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-left text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+          className,
+        )}
+        {...props}
+      >
+        <>
+          {children}
+          <ChevronDownIcon className="ml-auto h-4 w-4 opacity-50" />
+        </>
+      </ListboxPrimitive.Button>
+    </Popover.Trigger>
   );
 });
 ListboxButton.displayName = ListboxPrimitive.Button.displayName;
@@ -103,27 +66,25 @@ ListboxButton.displayName = ListboxPrimitive.Button.displayName;
 const ListboxOptions = React.forwardRef<
   React.ElementRef<typeof ListboxPrimitive.Options>,
   React.ComponentPropsWithoutRef<typeof ListboxPrimitive.Options>
->(({ className, children, style, ...props }, ref) => {
-  const { refs: floatingRefs, floatingStyles } = useFloatingContext();
-
-  // This strategy gives the consumer the ability to override the computed
-  // maxHeight set by the Floating UI libaray, which could cause the options
-  // list to extend beyond the availabile screen space. Presumably, this would
-  // be intentional, but it's something to be aware of.
-  const mergedStyles = { ...floatingStyles, ...style };
-
+>(({ className, children, ...props }, ref) => {
   return (
-    <ListboxPrimitive.Options
-      ref={mergeRefs(ref, floatingRefs.setFloating)}
-      className={cn(
-        "z-50 max-h-96 max-w-xl overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md focus:outline-none",
-        className,
-      )}
-      style={mergedStyles}
-      {...props}
-    >
-      {children}
-    </ListboxPrimitive.Options>
+    <Popover.Portal>
+      <Popover.Content
+        sideOffset={4}
+        className="z-50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
+      >
+        <ListboxPrimitive.Options
+          ref={ref}
+          className={cn(
+            "h-full max-h-[--radix-popper-available-height] w-full min-w-[var(--radix-popper-anchor-width)] max-w-xl overflow-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md focus:outline-none data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+            className,
+          )}
+          {...props}
+        >
+          {children}
+        </ListboxPrimitive.Options>
+      </Popover.Content>
+    </Popover.Portal>
   );
 });
 ListboxOptions.displayName = ListboxPrimitive.Options.displayName;
