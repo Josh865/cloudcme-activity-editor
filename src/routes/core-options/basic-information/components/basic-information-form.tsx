@@ -30,7 +30,6 @@ import {
 } from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
 import { Switch } from "~/components/ui/switch";
-import { TimeField } from "~/components/ui/time-input";
 import { FormSection } from "~/components/form-section";
 
 import { BasicInformationRequestSchema } from "../schemas";
@@ -42,6 +41,12 @@ type BasicInformationFormProps = {
   isMutating: boolean;
 };
 
+const states = [
+  { abbreviation: "CA", name: "California" },
+  { abbreviation: "NC", name: "North Carolina" },
+  { abbreviation: "NY", name: "New York" },
+];
+
 export function BasicInformationForm({
   defaultValues,
   onSubmit,
@@ -52,12 +57,6 @@ export function BasicInformationForm({
     defaultValues,
   });
 
-  const states = [
-    { abbreviation: "CA", name: "California" },
-    { abbreviation: "NC", name: "North Carolina" },
-    { abbreviation: "NY", name: "New York" },
-  ];
-
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
@@ -67,7 +66,7 @@ export function BasicInformationForm({
         >
           <FormField
             control={form.control}
-            name="name"
+            name="eventName"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Name</FormLabel>
@@ -102,7 +101,7 @@ export function BasicInformationForm({
                             )}
                           >
                             {field.value ? (
-                              format(field.value, "PPP")
+                              format(new Date(field.value), "PPP")
                             ) : (
                               <span>Pick a date</span>
                             )}
@@ -113,11 +112,9 @@ export function BasicInformationForm({
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={field.value}
+                          selected={new Date(field.value)}
+                          defaultMonth={new Date(field.value)}
                           onSelect={field.onChange}
-                          disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                          }
                           initialFocus
                         />
                       </PopoverContent>
@@ -129,12 +126,12 @@ export function BasicInformationForm({
 
               <FormField
                 control={form.control}
-                name="startTime"
+                name="timeStart"
                 render={({ field }) => (
                   <FormItem className="flex flex-col items-start">
                     <FormLabel>Start Time</FormLabel>
                     <FormControl>
-                      <TimeField {...field} />
+                      <Input type="time" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -160,7 +157,7 @@ export function BasicInformationForm({
                             )}
                           >
                             {field.value ? (
-                              format(field.value, "PPP")
+                              format(new Date(field.value), "PPP")
                             ) : (
                               <span>Pick a date</span>
                             )}
@@ -171,9 +168,9 @@ export function BasicInformationForm({
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={field.value}
+                          selected={new Date(field.value)}
+                          defaultMonth={new Date(field.value)}
                           onSelect={field.onChange}
-                          disabled={(date) => date < new Date("1900-01-01")}
                           initialFocus
                         />
                       </PopoverContent>
@@ -185,12 +182,12 @@ export function BasicInformationForm({
 
               <FormField
                 control={form.control}
-                name="endTime"
+                name="timeEnd"
                 render={({ field }) => (
                   <FormItem className="flex flex-col items-start">
                     <FormLabel>End Time</FormLabel>
                     <FormControl>
-                      <TimeField {...field} />
+                      <Input type="time" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -253,7 +250,7 @@ export function BasicInformationForm({
 
             <FormField
               control={form.control}
-              name="country"
+              name="eventCountry"
               render={({ field }) => (
                 <FormItem className="flex max-w-md flex-col items-start">
                   <FormLabel>Country</FormLabel>
@@ -268,7 +265,7 @@ export function BasicInformationForm({
             <div className="flex max-w-md gap-x-2">
               <FormField
                 control={form.control}
-                name="city"
+                name="eventCity"
                 render={({ field }) => (
                   <FormItem className="flex w-3/4 flex-col items-start">
                     <FormLabel>City</FormLabel>
@@ -282,7 +279,7 @@ export function BasicInformationForm({
 
               <FormField
                 control={form.control}
-                name="state"
+                name="eventState"
                 render={({ field }) => (
                   <FormItem className="flex flex-1 flex-col items-start">
                     <FormLabel>State</FormLabel>
@@ -320,7 +317,7 @@ export function BasicInformationForm({
           <div className="space-y-8">
             <FormField
               control={form.control}
-              name="isActive"
+              name="eventActive"
               render={({ field }) => (
                 <FormItem className="flex max-w-lg flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
@@ -342,7 +339,7 @@ export function BasicInformationForm({
 
             <FormField
               control={form.control}
-              name="isRegistrationOpen"
+              name="eventRegistrationActive"
               render={({ field }) => (
                 <FormItem className="flex max-w-lg flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">

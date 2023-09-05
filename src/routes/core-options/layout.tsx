@@ -30,7 +30,7 @@ export default function CoreOptionsLayout() {
         </SectionNavigationLink>
       </SectionNavigation>
 
-      <div className="container py-10">
+      <div className="container relative py-10">
         <Outlet />
       </div>
     </div>
