@@ -28,8 +28,6 @@ export function CreateCreditsAndSession() {
     });
   }
 
-  const me: any = 'Josh'
-
   const emptySession = {
     sessionId: 0,
     eventId: 0,
