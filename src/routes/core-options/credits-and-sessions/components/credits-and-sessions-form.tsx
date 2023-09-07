@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { CalendarIcon, XIcon } from "lucide-react";
 import { useFieldArray, useForm, useFormContext } from "react-hook-form";
 import { useParams } from "react-router-dom";
-
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
@@ -16,6 +15,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { useCredits } from "../api/credits/get-credits";
 import {
   Listbox,
   ListboxButton,
@@ -28,8 +28,6 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { Textarea } from "~/components/ui/textarea";
-
-import { useCredits } from "../api/credits/get-credits";
 import { SessionsRequestSchema } from "../schemas/schema";
 import { Session, SessionsRequest } from "../types";
 
@@ -226,20 +224,22 @@ function Credits() {
     name: "credits",
   });
 
+  let name: any;
+
   const assignedCredits: SessionsRequest["credits"] = form.watch("credits", []);
 
   // TODO: Handle this better
   if (isLoading || isError) return null;
 
-  const availableCredits = (selectedCreditId: number) => {
-    return credits.filter(
-      (credit) =>
-        !assignedCredits.some(
-          (assignedCredit) =>
-            assignedCredit.creditTypeId === credit.creditTypeId,
-        ) || credit.creditTypeId === selectedCreditId,
-    );
-  };
+const availableCredits = (selectedCreditId: number) => {
+return credits.filter(
+(credit) =>
+!assignedCredits.some(
+(assignedCredit) =>
+  assignedCredit.creditTypeId === credit.creditTypeId,
+) || credit.creditTypeId === selectedCreditId,
+);
+};
 
   return (
     <div>
