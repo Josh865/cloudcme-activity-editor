@@ -122,7 +122,7 @@ const AlertDialogAction = React.forwardRef<
 AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName;
 
 interface AlertDialogCancelProps
-  extends React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action> {
+  extends React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel> {
   variant?: VariantProps<typeof buttonVariants>["variant"];
   size?: VariantProps<typeof buttonVariants>["size"];
 }
