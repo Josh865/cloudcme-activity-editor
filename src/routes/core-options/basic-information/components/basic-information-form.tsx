@@ -30,6 +30,7 @@ import {
 } from "~/components/ui/select";
 import { Separator } from "~/components/ui/separator";
 import { Switch } from "~/components/ui/switch";
+import { ConfirmNavigationAlert } from "~/components/confirm-navigation-alert";
 import { FormSection } from "~/components/form-section";
 
 import { BasicInformationRequestSchema } from "../schemas";
@@ -60,6 +61,8 @@ export function BasicInformationForm({
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-12">
+        <ConfirmNavigationAlert />
+
         <FormSection
           heading="Activity Name"
           description="What do you want to call your activity?"

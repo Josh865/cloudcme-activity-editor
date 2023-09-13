@@ -3,7 +3,7 @@ import { BasicInformationRequest } from "../types";
 import { BasicInformationForm } from "./basic-information-form";
 
 const initialFormData: BasicInformationRequest = {
-  name: "",
+  eventName: "",
   start: new Date(),
   // @ts-ignore We don't want a default time and we cannot initialize a form value with undefined
   startTime: "",
