@@ -16,7 +16,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
-import { buttonVariants } from "~/components/ui/button";
 
 export function ConfirmNavigationAlert() {
   const form = useFormContext();
@@ -74,17 +73,17 @@ export function ConfirmNavigationAlert() {
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel
-            className={buttonVariants({ variant: "outline", size: "sm" })}
-          >
-            Stay on Page
-          </AlertDialogCancel>
           <AlertDialogAction
-            className={buttonVariants({ variant: "destructive", size: "sm" })}
+            variant="destructive"
+            size="sm"
+            className="border border-destructive bg-background text-destructive hover:bg-destructive/10 hover:text-destructive"
             onClick={blocker.proceed}
           >
             Continue without Saving
           </AlertDialogAction>
+          <AlertDialogCancel variant="default" size="sm">
+            Stay on Page
+          </AlertDialogCancel>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
