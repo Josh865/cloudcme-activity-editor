@@ -14,6 +14,7 @@ import BasicInformation from "./routes/core-options/basic-information/route";
 import UpdateCreditsAndSession from "./routes/core-options/credits-and-sessions/components/update-credits-and-session";
 import CreditsAndSessionsLayout from "./routes/core-options/credits-and-sessions/route";
 import CoreOptionsLayout from "./routes/core-options/layout";
+import TypesFormats from "./routes/core-options/types-formats/route";
 import FacultyAndRolesLayout from "./routes/faculty-and-roles/layout";
 import Layout from "./routes/layout";
 
@@ -56,7 +57,7 @@ export const routes = [
           },
           {
             path: "types-and-formats",
-            element: <div>Types and Formats</div>,
+            element: <TypesFormats />,
             handle: { label: "Types and Formats" },
           },
           {
