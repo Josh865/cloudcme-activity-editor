@@ -1,5 +1,6 @@
 import { ChevronDownCircleIcon, ChevronRightCircleIcon } from "lucide-react";
 import { NodeRendererProps, Tree } from "react-arborist";
+import { useFieldArray } from "react-hook-form";
 import { toTitleCase } from "string-ts";
 
 import { cn } from "~/lib/utils";
@@ -13,14 +14,47 @@ import {
 
 import { useAbaContentOutline } from "../api/get-aba-content-outline";
 
-export function AbaContentOutlineTree() {
+export function AbaContentOutlineTree({ fieldIndex }: { fieldIndex: number }) {
   const { data, isLoading, isError } = useAbaContentOutline();
+
+  const { fields, append, remove } = useFieldArray({
+    name: `boards.${fieldIndex}.abaContentOutline` as "boards.0.abaContentOutline",
+    keyName: "key",
+  });
+
+  const selectedItems = fields.map((field) => field.name);
 
   if (isLoading || isError) return null;
 
+  function handleActivate(node) {
+    if (!node.isLeaf) return;
+
+    const existingIndex = fields.findIndex(
+      (field) => field.id === node.data.id,
+    );
+    if (existingIndex > -1) {
+      remove(existingIndex);
+      return;
+    }
+
+    append({
+      id: node.data.id,
+      name: node.data.name,
+    });
+  }
+
   return (
     <Dialog>
-      <DialogTrigger>Open</DialogTrigger>
+      <DialogTrigger asChild>
+        <button
+          type="button"
+          className="flex h-auto w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-left text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <div className="truncate">
+            {selectedItems.length > 0 ? selectedItems.join(", ") : "Select..."}
+          </div>
+        </button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>ABA Content Areas</DialogHeader>
         <DialogDescription>
@@ -34,9 +68,10 @@ export function AbaContentOutlineTree() {
           width="auto"
           height={400}
           rowHeight={28}
-          onActivate={(node) => {
-            console.log(node);
-          }}
+          className="rounded-md border"
+          padding={8}
+          rowClassName="px-2"
+          onActivate={handleActivate}
         >
           {Node}
         </Tree>
@@ -53,20 +88,28 @@ function Node({ node, style, dragHandle }: NodeRendererProps<any>) {
       style={style}
       ref={dragHandle}
       onClick={() => node.toggle()}
-      className="flex h-full cursor-pointer items-center rounded-md hover:bg-muted"
+      className={cn(
+        "flex h-full cursor-pointer items-center rounded-md hover:bg-muted",
+        node.isSelectedEnd && "bg-muted",
+      )}
     >
       {node.isLeaf ? (
-        <span>{node.data.name}</span>
+        <span
+          className={cn("truncate", node.isSelected && "font-medium")}
+          title={node.data.name}
+        >
+          {node.data.name}
+        </span>
       ) : (
         <>
           <Icon
             className={cn(
               "mr-1.5 h-4 w-4 flex-shrink-0 text-muted-foreground",
-              node.isOpen && "text-foreground",
+              node.isSelectedEnd && "text-foreground",
             )}
             aria-hidden="true"
           />
-          <span className={cn("truncate", node.isOpen && "font-medium")}>
+          <span className={cn("truncate", node.isSelectedEnd && "font-medium")}>
             {toTitleCase(node.data.name)}
           </span>
         </>

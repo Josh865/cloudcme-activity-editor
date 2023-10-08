@@ -246,7 +246,7 @@ export function MocForm({ defaultValues, onSubmit, isMutating }: MocFormProps) {
                           control={form.control}
                           name={`boards.${getIndex(board)}.types`}
                           render={({ field }) => (
-                            <FormItem className="flex-1">
+                            <FormItem className="flex-[1_0_auto]">
                               <FormLabel>Types</FormLabel>
                               <Listbox
                                 onChange={field.onChange}
@@ -275,7 +275,7 @@ export function MocForm({ defaultValues, onSubmit, isMutating }: MocFormProps) {
                           control={form.control}
                           name={`boards.${getIndex(board)}.specialties`}
                           render={({ field }) => (
-                            <FormItem className="flex-1">
+                            <FormItem className="flex-[1_0_auto]">
                               <FormLabel>Specialties</FormLabel>
                               <Listbox
                                 onChange={field.onChange}
@@ -303,7 +303,21 @@ export function MocForm({ defaultValues, onSubmit, isMutating }: MocFormProps) {
                           )}
                         />
 
-                        {board.id === ABA_ID && <div>Content Outline</div>}
+                        {board.id === ABA_ID && (
+                          <FormField
+                            control={form.control}
+                            name={`boards.${getIndex(board)}.abaContentOutline`}
+                            render={({ field }) => (
+                              <FormItem className="max-w-xs flex-1">
+                                <FormLabel>Content Outline</FormLabel>
+                                <AbaContentOutlineTree
+                                  fieldIndex={getIndex(board)}
+                                />
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        )}
                       </div>
                     </motion.div>
                   )}
@@ -312,8 +326,6 @@ export function MocForm({ defaultValues, onSubmit, isMutating }: MocFormProps) {
             ))}
           </div>
         </FormSection>
-
-        <AbaContentOutlineTree />
 
         <Button type="submit" disabled={isMutating}>
           Save Changes
