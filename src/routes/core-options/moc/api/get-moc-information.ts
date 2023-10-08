@@ -14,10 +14,10 @@ const exampleMocInformation = {
       name: "American Board of Anesthesiology (ABA)",
       points: 10,
       types: ["Lifelong Learning (CME)", "Patient Safety"],
-      // abaContentOutline: [
-      //   { id: "123", name: "hello world", otherDescription: "" },
-      //   { id: "1234", name: "baseball", otherDescription: "" },
-      // ],
+      abaContentOutline: [
+        { id: "123", name: "hello world", otherDescription: "" },
+        { id: "1234", name: "baseball", otherDescription: "" },
+      ],
       specialties: [
         "Ambulatory/Outpatient",
         "Neuro Anesthesia",

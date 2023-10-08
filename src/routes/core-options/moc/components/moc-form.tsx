@@ -122,7 +122,7 @@ export function MocForm({ defaultValues, onSubmit, isMutating }: MocFormProps) {
               name="claimByDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col items-start">
-                  <FormLabel>Claim By Date</FormLabel>
+                  <FormLabel>Deadline to Claim Credit</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>

@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { ChevronDownCircleIcon, ChevronRightCircleIcon } from "lucide-react";
 import { NodeRendererProps, Tree } from "react-arborist";
 import { useFieldArray } from "react-hook-form";
 import { toTitleCase } from "string-ts";
 
 import { cn } from "~/lib/utils";
+import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -17,23 +19,35 @@ import { useAbaContentOutline } from "../api/get-aba-content-outline";
 export function AbaContentOutlineTree({ fieldIndex }: { fieldIndex: number }) {
   const { data, isLoading, isError } = useAbaContentOutline();
 
-  const { fields, append, remove } = useFieldArray({
+  const {
+    fields: selectedItems,
+    append,
+    remove,
+  } = useFieldArray({
     name: `boards.${fieldIndex}.abaContentOutline` as "boards.0.abaContentOutline",
     keyName: "key",
   });
 
-  const selectedItems = fields.map((field) => field.name);
+  const [error, setError] = useState("");
 
   if (isLoading || isError) return null;
 
   function handleActivate(node) {
     if (!node.isLeaf) return;
 
-    const existingIndex = fields.findIndex(
+    // Remove the field if it's already been selected
+    const existingIndex = selectedItems.findIndex(
       (field) => field.id === node.data.id,
     );
     if (existingIndex > -1) {
       remove(existingIndex);
+      setError("");
+      return;
+    }
+
+    // Don't allow more than two selections
+    if (selectedItems.length === 2) {
+      setError("You may not select more than two content outlines.");
       return;
     }
 
@@ -41,6 +55,14 @@ export function AbaContentOutlineTree({ fieldIndex }: { fieldIndex: number }) {
       id: node.data.id,
       name: node.data.name,
     });
+  }
+
+  function handleDelete(itemId) {
+    const existingIndex = selectedItems.findIndex(
+      (field) => field.id === itemId,
+    );
+    remove(existingIndex);
+    setError("");
   }
 
   return (
@@ -51,7 +73,9 @@ export function AbaContentOutlineTree({ fieldIndex }: { fieldIndex: number }) {
           className="flex h-auto w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-left text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <div className="truncate">
-            {selectedItems.length > 0 ? selectedItems.join(", ") : "Select..."}
+            {selectedItems.length > 0
+              ? selectedItems.map((field) => field.name).join(", ")
+              : "Select..."}
           </div>
         </button>
       </DialogTrigger>
@@ -60,21 +84,60 @@ export function AbaContentOutlineTree({ fieldIndex }: { fieldIndex: number }) {
         <DialogDescription>
           Select up to two content areas to associated with this activity.
         </DialogDescription>
-        <Tree
-          initialData={data}
-          // searchTerm={searchTearm}
-          openByDefault={false}
-          disableDrag={true}
-          width="auto"
-          height={400}
-          rowHeight={28}
-          className="rounded-md border"
-          padding={8}
-          rowClassName="px-2"
-          onActivate={handleActivate}
-        >
-          {Node}
-        </Tree>
+        <div>
+          {selectedItems.length > 0 && (
+            <>
+              <p
+                className={cn(
+                  "text-sm font-medium",
+                  error && "text-destructive",
+                )}
+              >
+                Current Selections
+              </p>
+              <div className="mt-2 rounded-md bg-muted p-3">
+                <ul className="-my-1">
+                  {selectedItems.map((field) => (
+                    <li
+                      key={field.id}
+                      className="flex items-center justify-between gap-x-2 border-b py-2 text-sm last:border-b-0"
+                    >
+                      {field.name}{" "}
+                      <Button
+                        size="sm"
+                        type="button"
+                        variant="outline"
+                        className="h-auto py-1 text-xs"
+                        onClick={() => handleDelete(field.id)}
+                      >
+                        Remove
+                      </Button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {error && (
+                <p className="mt-2 text-sm text-destructive">{error}</p>
+              )}
+            </>
+          )}
+
+          <Tree
+            initialData={data}
+            // searchTerm={searchTearm}
+            openByDefault={false}
+            disableDrag={true}
+            width="auto"
+            height={300}
+            rowHeight={28}
+            className="mt-4 rounded-md border"
+            padding={8}
+            rowClassName="px-2"
+            onActivate={handleActivate}
+          >
+            {Node}
+          </Tree>
+        </div>
       </DialogContent>
     </Dialog>
   );
