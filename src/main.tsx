@@ -7,14 +7,9 @@ import {
   RouterProvider,
 } from "react-router-dom";
 
-import { ObjectivesForm } from "~/components/forms/objectives-form/objectives-form";
-import { CreateCreditsAndSession } from "~/routes/core-options/credits-and-sessions/components/create-credits-and-session";
-
 import BasicInformation from "./routes/core-options/basic-information/route";
-import UpdateCreditsAndSession from "./routes/core-options/credits-and-sessions/components/update-credits-and-session";
-import CreditsAndSessionsLayout from "./routes/core-options/credits-and-sessions/route";
 import CoreOptionsLayout from "./routes/core-options/layout";
-import TypesFormats from "./routes/core-options/types-formats/route";
+import Moc from "./routes/core-options/moc/route";
 import FacultyAndRolesLayout from "./routes/faculty-and-roles/layout";
 import Layout from "./routes/layout";
 
@@ -57,30 +52,20 @@ export const routes = [
           },
           {
             path: "types-and-formats",
-            element: <TypesFormats />,
+            element: <div>Types and Formats</div>,
             handle: { label: "Types and Formats" },
           },
           {
-            path: "credits-sessions-moc",
-            element: <CreditsAndSessionsLayout />,
+            path: "moc",
+            element: <Moc />,
             handle: {
-              label: "Credits, Sessions, & MOC",
+              label: "MOC",
               keywords: ["room", "seating capacity"],
             },
-            children: [
-              {
-                path: "create",
-                element: <CreateCreditsAndSession />,
-              },
-              {
-                path: ":sessionId",
-                element: <UpdateCreditsAndSession />,
-              },
-            ],
           },
           {
             path: "objectives",
-            element: <ObjectivesForm />,
+            element: <div>Objectives</div>,
             handle: { label: "Objectives" },
           },
           {

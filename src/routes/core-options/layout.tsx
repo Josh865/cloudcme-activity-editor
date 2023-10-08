@@ -15,9 +15,7 @@ export default function CoreOptionsLayout() {
         <SectionNavigationLink to="types-and-formats">
           Types & Formats
         </SectionNavigationLink>
-        <SectionNavigationLink to="credits-sessions-moc">
-          Credits, Sessions, & MOC
-        </SectionNavigationLink>
+        <SectionNavigationLink to="moc">MOC</SectionNavigationLink>
         <SectionNavigationLink to="objectives">
           Objectives
         </SectionNavigationLink>
