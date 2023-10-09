@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDownCircleIcon, ChevronRightCircleIcon } from "lucide-react";
-import { NodeRendererProps, Tree } from "react-arborist";
+import { NodeApi, NodeRendererProps, Tree } from "react-arborist";
 import { useFieldArray } from "react-hook-form";
 import { toTitleCase } from "string-ts";
 
@@ -15,15 +15,24 @@ import {
 } from "~/components/ui/dialog";
 
 import { useAbaContentOutline } from "../api/get-aba-content-outline";
+import { AbaContentOutline, ActivityMocInformation } from "../types";
 
-export function AbaContentOutlineTree({ fieldIndex }: { fieldIndex: number }) {
+export function AbaContentOutlineDialog({
+  fieldIndex,
+}: {
+  fieldIndex: number;
+}) {
   const { data, isLoading, isError } = useAbaContentOutline();
 
   const {
     fields: selectedItems,
     append,
     remove,
-  } = useFieldArray({
+  } = useFieldArray<
+    ActivityMocInformation,
+    "boards.0.abaContentOutline",
+    "key"
+  >({
     name: `boards.${fieldIndex}.abaContentOutline` as "boards.0.abaContentOutline",
     keyName: "key",
   });
@@ -32,7 +41,7 @@ export function AbaContentOutlineTree({ fieldIndex }: { fieldIndex: number }) {
 
   if (isLoading || isError) return null;
 
-  function handleActivate(node) {
+  function handleActivate(node: NodeApi<AbaContentOutline>) {
     if (!node.isLeaf) return;
 
     // Remove the field if it's already been selected
@@ -57,7 +66,7 @@ export function AbaContentOutlineTree({ fieldIndex }: { fieldIndex: number }) {
     });
   }
 
-  function handleDelete(itemId) {
+  function handleDelete(itemId: string) {
     const existingIndex = selectedItems.findIndex(
       (field) => field.id === itemId,
     );
@@ -73,9 +82,7 @@ export function AbaContentOutlineTree({ fieldIndex }: { fieldIndex: number }) {
           className="flex h-auto w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-left text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <div className="truncate">
-            {selectedItems.length > 0
-              ? selectedItems.map((field) => field.name).join(", ")
-              : "Select..."}
+            {`${selectedItems.length} Selected` ?? "Select"}
           </div>
         </button>
       </DialogTrigger>
@@ -102,12 +109,12 @@ export function AbaContentOutlineTree({ fieldIndex }: { fieldIndex: number }) {
                       key={field.id}
                       className="flex items-center justify-between gap-x-2 border-b py-2 text-sm last:border-b-0"
                     >
-                      {field.name}{" "}
+                      <span>{field.name}</span>
                       <Button
                         size="sm"
                         type="button"
                         variant="outline"
-                        className="h-auto py-1 text-xs"
+                        className="h-auto py-1 text-xs hover:bg-background"
                         onClick={() => handleDelete(field.id)}
                       >
                         Remove
@@ -143,7 +150,11 @@ export function AbaContentOutlineTree({ fieldIndex }: { fieldIndex: number }) {
   );
 }
 
-function Node({ node, style, dragHandle }: NodeRendererProps<any>) {
+function Node({
+  node,
+  style,
+  dragHandle,
+}: NodeRendererProps<AbaContentOutline>) {
   const Icon = node.isOpen ? ChevronDownCircleIcon : ChevronRightCircleIcon;
 
   return (

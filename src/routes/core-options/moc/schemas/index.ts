@@ -12,6 +12,7 @@ export const MocBoardSchema = z.object({
 export const AbaContentOutlineSchema = z.object({
   id: z.string(),
   name: z.string(),
+  otherDescription: z.string().optional(),
 });
 
 // User-supplied details for each selected board
