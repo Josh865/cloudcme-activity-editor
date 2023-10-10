@@ -37,7 +37,9 @@ export const MocBoardInformationSchema = z
   })
   .superRefine(({ id, abaContentOutline }, ctx) => {
     // Check is only applicable to ABA
-    if (id !== ABA_ID) return;
+    if (id !== ABA_ID) {
+      return z.NEVER;
+    }
 
     if (!abaContentOutline || abaContentOutline.length === 0) {
       ctx.addIssue({
@@ -45,6 +47,8 @@ export const MocBoardInformationSchema = z
         message: "At least one content area is required",
         path: ["abaContentOutline"],
       });
+
+      return z.NEVER;
     }
 
     if (abaContentOutline && abaContentOutline.length > 2) {
@@ -57,8 +61,33 @@ export const MocBoardInformationSchema = z
   });
 
 // API response for MOC info specific to this activity
-export const ActivityMocInformationSchema = z.object({
-  enableMoc: z.coerce.boolean(),
-  claimByDate: z.coerce.date(),
-  boards: z.array(MocBoardInformationSchema),
-});
+export const ActivityMocInformationSchema = z
+  .object({
+    enableMoc: z.coerce.boolean(),
+    claimByDate: z.coerce.date().optional(),
+    boards: z.array(MocBoardInformationSchema).optional(),
+  })
+  .superRefine((value, ctx) => {
+    console.log("my name is josh");
+    if (!value.enableMoc) {
+      return z.NEVER;
+    }
+
+    if (!value.claimByDate) {
+      ctx.addIssue({
+        code: "custom",
+        message: "A claim-by date is required",
+        path: ["claimByDate"],
+      });
+
+      return z.NEVER;
+    }
+
+    if (!value.boards || value.boards.length === 0) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Please select at least one board",
+        path: ["boards"],
+      });
+    }
+  });
